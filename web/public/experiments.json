@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "experiments": [
+    {
+      "id": "one-shard",
+      "label": "One shard",
+      "recording": "recordings/demo/one-shard/recording.json"
+    }
+  ]
+}

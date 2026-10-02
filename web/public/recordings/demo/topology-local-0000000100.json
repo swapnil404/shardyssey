@@ -1,0 +1,9 @@
+{
+  "alias": {
+    "cell": "local",
+    "uid": 100
+  },
+  "keyspace": "demo",
+  "shard": "-80",
+  "type": "PRIMARY"
+}
