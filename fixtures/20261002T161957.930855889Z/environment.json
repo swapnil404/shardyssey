@@ -1,0 +1,5 @@
+{
+  "clock_source": "shared host kernel clock; skew not separately measured",
+  "clock_uncertainty_us": null,
+  "layout": "separate containers on one host"
+}

@@ -30,6 +30,7 @@ export interface Recording {
   query_template: string | null;
   query_result: { columns: string[]; rows: string[][]; evidence_path: string } | null;
   client_elapsed_ms: number | null;
+  fault_configuration: { type: string; shard: string; delay_ms: number } | null;
   capture_status: string;
   timing_available: boolean;
   timestamp_unit: string;
@@ -47,7 +48,7 @@ const nullableTime = (v: unknown) => v === null || (typeof v === 'number' && Num
 const strings = (v: unknown): v is string[] => Array.isArray(v) && v.every(item => typeof item === 'string');
 
 export function parseRecording(value: unknown): Recording {
-  if (!object(value) || value.schema_version !== 1 || value.experiment_id !== 'one-shard' || value.timestamp_unit !== 'unix_microseconds' || typeof value.capture_status !== 'string' || typeof value.timing_available !== 'boolean') throw new Error('Unsupported recording format.');
+  if (!object(value) || value.schema_version !== 1 || !['one-shard', 'fan-out', 'slow-branch'].includes(value.experiment_id as string) || value.timestamp_unit !== 'unix_microseconds' || typeof value.capture_status !== 'string' || typeof value.timing_available !== 'boolean') throw new Error('Unsupported recording format.');
   for (const key of ['run_id', 'trace_id', 'vitess_version', 'query_template', 'root_span_id']) if (!nullableString(value[key])) throw new Error(`Invalid recording field: ${key}.`);
   if (!object(value.topology_snapshot) || !Array.isArray(value.topology_snapshot.tablets) || !nullableString(value.topology_snapshot.layout)) throw new Error('Missing recorded topology.');
   for (const tablet of value.topology_snapshot.tablets) {
@@ -67,6 +68,7 @@ export function parseRecording(value: unknown): Recording {
   if (value.query_result !== null) {
     if (!object(value.query_result) || !strings(value.query_result.columns) || !Array.isArray(value.query_result.rows) || !value.query_result.rows.every(strings) || typeof value.query_result.evidence_path !== 'string') throw new Error('Invalid query result.');
   }
+  if (value.fault_configuration !== null && (!object(value.fault_configuration) || value.fault_configuration.type !== 'injected network delay' || typeof value.fault_configuration.shard !== 'string' || typeof value.fault_configuration.delay_ms !== 'number' || !Number.isInteger(value.fault_configuration.delay_ms) || value.fault_configuration.delay_ms < 100 || value.fault_configuration.delay_ms > 1000)) throw new Error('Invalid injected delay evidence.');
   if (!nullableTime(value.clock_uncertainty_us) || (value.client_elapsed_ms !== null && (typeof value.client_elapsed_ms !== 'number' || !Number.isFinite(value.client_elapsed_ms) || value.client_elapsed_ms < 0))) throw new Error('Invalid recording timing.');
   return value as unknown as Recording;
 }
@@ -80,6 +82,8 @@ export function replayModel(recording: Recording): ReplayModel {
   let reason: string | null = null;
   if (recording.capture_status !== 'complete' || !recording.timing_available || recording.warnings.length) reason = 'This capture is incomplete. Missing branches cannot prove that a shard did not run.';
   else if (!root || root.operation !== 'vtgateHandler.ComQuery' || root.service !== 'vtgate' || root.parent_id !== null || !measured(root) || root.duration_us === 0) reason = 'The measured query interval is unavailable.';
+  else if (recording.topology_snapshot.tablets.length !== 2 || new Set(recording.topology_snapshot.tablets.map(tablet => tablet.alias)).size !== 2 || new Set(recording.topology_snapshot.tablets.map(tablet => tablet.shard)).size !== 2) reason = 'The two recorded shard services cannot be identified uniquely.';
+  else if (recording.branches.length !== (recording.experiment_id === 'one-shard' ? 1 : 2) || new Set(recording.branches.map(branch => branch.tablet)).size !== recording.branches.length || new Set(recording.branches.map(branch => branch.rpc_span_id)).size !== recording.branches.length) reason = 'The expected query branches are missing or ambiguous.';
   else if (recording.spans.some(span => !measured(span))) reason = 'Some span timing is unknown. Timed replay is disabled.';
   else {
     for (const span of recording.spans) {
@@ -96,9 +100,8 @@ export function replayModel(recording: Recording): ReplayModel {
     for (const branch of recording.branches) {
       const rpc = spans.get(branch.rpc_span_id);
       const tablet = recording.topology_snapshot.tablets.find(tablet => tablet.alias === branch.tablet);
-      if (!rpc || !measured(branch) || rpc.start !== branch.start || rpc.end !== branch.end || rpc.duration_us !== branch.duration_us || !branch.supporting_span_ids.includes(rpc.id) || !branch.supporting_span_ids.includes(root.id) || branch.supporting_span_ids.some(id => !spans.has(id)) || !tablet || tablet.shard !== branch.shard || branch.start! < root.start! || branch.end! > root.end!) reason = 'A branch interval cannot be matched to its source evidence.';
+      if (!rpc || rpc.service !== 'vtgate' || rpc.operation !== '/queryservice.Query/Execute' || !measured(branch) || rpc.start !== branch.start || rpc.end !== branch.end || rpc.duration_us !== branch.duration_us || !branch.supporting_span_ids.includes(rpc.id) || !branch.supporting_span_ids.includes(root.id) || branch.supporting_span_ids.some(id => !spans.has(id)) || !tablet || tablet.shard !== branch.shard || branch.start! < root.start! || branch.end! > root.end!) reason = 'A branch interval cannot be matched to its source evidence.';
     }
-    if (recording.branches.length === 0) reason = 'No identifiable tablet branch was captured.';
   }
   return { recording, root, duration: root?.duration_us ?? 0, available: reason === null, reason };
 }
@@ -122,4 +125,15 @@ export function evidenceURL(recordingURL: string, relative: string): string {
   const allowed = new URL('../', base);
   if (url.origin !== base.origin || !url.pathname.startsWith(allowed.pathname)) throw new Error('Evidence link is outside this recording bundle.');
   return url.href;
+}
+
+export function planEvidence(recording: Recording) {
+  const evidence = recording.explain_runs.find(run => run.format === 'PLAN');
+  if (!evidence?.raw_output) return null;
+  try {
+    const plan = JSON.parse(evidence.raw_output.replace(/^JSON\s*/, ''));
+    if (plan.OperatorType === 'Route' && plan.Variant === 'EqualUnique' && plan.Vindex === 'user_hash') return { evidence, routing: 'EqualUnique', aggregate: null, explanation: 'The captured plan uses the user_hash vindex for an EqualUnique route. The user_id filter targets one shard.' };
+    if (plan.OperatorType === 'Aggregate' && plan.Variant === 'Scalar' && plan.Aggregates === 'sum_count_star(0) AS count(*)' && plan.Inputs?.length === 1 && plan.Inputs[0].OperatorType === 'Route' && plan.Inputs[0].Variant === 'Scatter') return { evidence, routing: 'Scatter', aggregate: plan.Aggregates as string, explanation: 'The captured plan scatters the count query and applies a scalar sum_count_star aggregate to the shard counts. A complete count needs both contributions.' };
+  } catch { /* Unknown plan output is inspectable but does not support a routing claim. */ }
+  return null;
 }

@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"shardyssey/internal/traces"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -32,6 +33,7 @@ func (b *evidenceBuffer) Write(p []byte) (int, error) {
 type Capturer struct {
 	Root         string
 	ExperimentID string
+	DelayMS      int
 	DSN          string
 	Jaeger       string
 }
@@ -75,6 +77,12 @@ func (c Capturer) Capture(ctx context.Context) (directory string, report *Report
 	case "", "one-shard", "fan-out", "slow-branch":
 	default:
 		return "", nil, fmt.Errorf("unknown experiment %q", c.ExperimentID)
+	}
+	if c.DelayMS == 0 {
+		c.DelayMS = 500
+	}
+	if c.DelayMS < 100 || c.DelayMS > 1000 {
+		return "", nil, fmt.Errorf("delay must be 100–1000 ms")
 	}
 	c.Root, err = filepath.Abs(c.Root)
 	if err != nil {
@@ -186,8 +194,15 @@ func (c Capturer) experiment(ctx context.Context, directory, name, query string,
 	}()
 	var fault any
 	if delayed {
-		fault = map[string]any{"type": "injected network delay", "shard": "80-", "delay_ms": 500}
-		if _, err = c.script(ctx, "fault.sh", "on", "500"); err != nil {
+		delay := c.DelayMS
+		if delay == 0 {
+			delay = 500
+		}
+		if delay < 100 || delay > 1000 {
+			return fmt.Errorf("delay must be 100–1000 ms")
+		}
+		fault = map[string]any{"type": "injected network delay", "shard": "80-", "delay_ms": delay}
+		if _, err = c.script(ctx, "fault.sh", "on", strconv.Itoa(delay)); err != nil {
 			return
 		}
 	}

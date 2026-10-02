@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { clampCursor, nextEvent, type ReplayModel } from './recording';
 
-export function useReplay(model: ReplayModel) {
+export function useReplay(model: ReplayModel, initialSpeed = 1 / 2000, boundaries?: number[]) {
   const [cursor, setCursor] = useState(0);
   const cursorRef = useRef(0);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1 / 2000);
+  const [speed, setSpeed] = useState(initialSpeed);
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const seek = (position: number) => { setPlaying(false); cursorRef.current = clampCursor(model, position); setCursor(cursorRef.current); };
   useEffect(() => {
@@ -31,7 +31,7 @@ export function useReplay(model: ReplayModel) {
   }, [playing, reducedMotion, speed, model]);
   const toggle = () => {
     if (!model.available) return;
-    if (reducedMotion) { seek(cursor >= model.duration ? 0 : nextEvent(model, cursor)); return; }
+    if (reducedMotion) { seek(cursor >= model.duration ? 0 : (boundaries?.filter(event => event > cursor).sort((a, b) => a - b)[0] ?? nextEvent(model, cursor))); return; }
     if (cursor >= model.duration) { cursorRef.current = 0; setCursor(0); }
     setPlaying(value => !value);
   };

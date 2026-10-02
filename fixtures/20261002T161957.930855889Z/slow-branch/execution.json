@@ -1,0 +1,15 @@
+{
+  "run_id": "a7f354dd-adc3-4d6e-9700-e35e30f597f6",
+  "experiment_id": "slow-branch",
+  "sql": "SELECT COUNT(*) FROM events",
+  "start_unix_us": 1790958005487611,
+  "end_unix_us": 1790958005589287,
+  "client_elapsed_ms": 101.676113,
+  "elapsed_scope": "query and row retrieval on an established MySQL connection",
+  "fault_configuration": {
+    "delay_ms": 100,
+    "shard": "80-",
+    "type": "injected network delay"
+  },
+  "correlation": "single executor trace in isolated query interval"
+}

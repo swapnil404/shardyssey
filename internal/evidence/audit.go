@@ -105,7 +105,21 @@ func Audit(directory string) (*Report, error) {
 	b, s := byShard(baseline), byShard(slow)
 	right := s["80-"].RPCDuration - b["80-"].RPCDuration
 	left := s["-80"].RPCDuration - b["-80"].RPCDuration
-	if right < 400 || math.Abs(left) >= 150 || slow.Duration-baseline.Duration < 400 || slow.Duration < s["80-"].RPCDuration-1 || slow.Elapsed < slow.Duration-1 {
+	var delayedExecution struct {
+		Fault struct {
+			Type  string  `json:"type"`
+			Shard string  `json:"shard"`
+			Delay float64 `json:"delay_ms"`
+		} `json:"fault_configuration"`
+	}
+	if e := readJSON(filepath.Join(directory, "slow-branch", "execution.json"), &delayedExecution); e != nil {
+		return nil, e
+	}
+	fault := delayedExecution.Fault
+	if fault.Type != "injected network delay" || fault.Shard != "80-" || fault.Delay < 100 || fault.Delay > 1000 || math.Trunc(fault.Delay) != fault.Delay {
+		return nil, fmt.Errorf("invalid injected network delay evidence")
+	}
+	if right < fault.Delay*0.8 || math.Abs(left) >= math.Min(150, fault.Delay*0.3) || slow.Duration-baseline.Duration < fault.Delay*0.8 || slow.Duration < s["80-"].RPCDuration-1 || slow.Elapsed < slow.Duration-1 {
 		return nil, fmt.Errorf("delay effect or completion interval inconsistent")
 	}
 	report.Delay = map[string]float64{"80-": right, "-80": left, "root": slow.Duration - baseline.Duration}

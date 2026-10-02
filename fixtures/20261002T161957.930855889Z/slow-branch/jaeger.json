@@ -1,0 +1,736 @@
+{
+  "data": [
+    {
+      "traceID": "26268d980217e0a5c160e44e0b549cae",
+      "spans": [
+        {
+          "traceID": "26268d980217e0a5c160e44e0b549cae",
+          "spanID": "be7340cf7ef24ce9",
+          "operationName": "TabletServer.Execute",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "26268d980217e0a5c160e44e0b549cae",
+              "spanID": "d986fa219f9ee187"
+            }
+          ],
+          "startTime": 1790958005488011,
+          "duration": 703,
+          "tags": [
+            {
+              "key": "cell",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "key": "isolation-level",
+              "type": "string",
+              "value": "DEFAULT"
+            },
+            {
+              "key": "keyspace",
+              "type": "string",
+              "value": "demo"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "vitess.io/vitess"
+            },
+            {
+              "key": "shard",
+              "type": "string",
+              "value": "-80"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "sql-statement-type",
+              "type": "string",
+              "value": "SELECT"
+            },
+            {
+              "key": "workload_name",
+              "type": "string",
+              "value": ""
+            }
+          ],
+          "logs": [],
+          "processID": "p1",
+          "warnings": null
+        },
+        {
+          "traceID": "26268d980217e0a5c160e44e0b549cae",
+          "spanID": "0a2578fefc7bbdd3",
+          "operationName": "executor.Execute",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "26268d980217e0a5c160e44e0b549cae",
+              "spanID": "b1cba659cae41d06"
+            }
+          ],
+          "startTime": 1790958005487653,
+          "duration": 101477,
+          "tags": [
+            {
+              "key": "method",
+              "type": "string",
+              "value": "Execute"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "vitess.io/vitess"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "sql-statement-type",
+              "type": "string",
+              "value": "SELECT"
+            }
+          ],
+          "logs": [],
+          "processID": "p2",
+          "warnings": null
+        },
+        {
+          "traceID": "26268d980217e0a5c160e44e0b549cae",
+          "spanID": "e33168153b2ee09f",
+          "operationName": "QueryExecutor.execDBConn",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "26268d980217e0a5c160e44e0b549cae",
+              "spanID": "3e6f2dc0950621a4"
+            }
+          ],
+          "startTime": 1790958005588154,
+          "duration": 725,
+          "tags": [
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "vitess.io/vitess"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p3",
+          "warnings": null
+        },
+        {
+          "traceID": "26268d980217e0a5c160e44e0b549cae",
+          "spanID": "5f4488866abc38ad",
+          "operationName": "TabletServer.Execute",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "26268d980217e0a5c160e44e0b549cae",
+              "spanID": "f6f3dd2ba8bfb9d2"
+            }
+          ],
+          "startTime": 1790958005588058,
+          "duration": 854,
+          "tags": [
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "vitess.io/vitess"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "sql-statement-type",
+              "type": "string",
+              "value": "SELECT"
+            }
+          ],
+          "logs": [],
+          "processID": "p3",
+          "warnings": null
+        },
+        {
+          "traceID": "26268d980217e0a5c160e44e0b549cae",
+          "spanID": "f6f3dd2ba8bfb9d2",
+          "operationName": "/queryservice.Query/Execute",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "26268d980217e0a5c160e44e0b549cae",
+              "spanID": "cfd13c7a133ddde6"
+            }
+          ],
+          "startTime": 1790958005588047,
+          "duration": 870,
+          "tags": [
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "vitess.io/vitess"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "server"
+            }
+          ],
+          "logs": [],
+          "processID": "p3",
+          "warnings": null
+        },
+        {
+          "traceID": "26268d980217e0a5c160e44e0b549cae",
+          "spanID": "b5c881574128c197",
+          "operationName": "DBConn.Exec",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "26268d980217e0a5c160e44e0b549cae",
+              "spanID": "a611385d2c4a220d"
+            }
+          ],
+          "startTime": 1790958005488123,
+          "duration": 570,
+          "tags": [
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "vitess.io/vitess"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p1",
+          "warnings": null
+        },
+        {
+          "traceID": "26268d980217e0a5c160e44e0b549cae",
+          "spanID": "72e0a10e07ed5b1e",
+          "operationName": "QueryExecutor.getConn",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "26268d980217e0a5c160e44e0b549cae",
+              "spanID": "3e6f2dc0950621a4"
+            }
+          ],
+          "startTime": 1790958005588143,
+          "duration": 10,
+          "tags": [
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "vitess.io/vitess"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p3",
+          "warnings": null
+        },
+        {
+          "traceID": "26268d980217e0a5c160e44e0b549cae",
+          "spanID": "93040e4e7a4754d3",
+          "operationName": "QueryExecutor.getConn",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "26268d980217e0a5c160e44e0b549cae",
+              "spanID": "be7340cf7ef24ce9"
+            }
+          ],
+          "startTime": 1790958005488063,
+          "duration": 56,
+          "tags": [
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "vitess.io/vitess"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p1",
+          "warnings": null
+        },
+        {
+          "traceID": "26268d980217e0a5c160e44e0b549cae",
+          "spanID": "a611385d2c4a220d",
+          "operationName": "QueryExecutor.execDBConn",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "26268d980217e0a5c160e44e0b549cae",
+              "spanID": "be7340cf7ef24ce9"
+            }
+          ],
+          "startTime": 1790958005488121,
+          "duration": 579,
+          "tags": [
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "vitess.io/vitess"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p1",
+          "warnings": null
+        },
+        {
+          "traceID": "26268d980217e0a5c160e44e0b549cae",
+          "spanID": "cfd13c7a133ddde6",
+          "operationName": "/queryservice.Query/Execute",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "26268d980217e0a5c160e44e0b549cae",
+              "spanID": "0a2578fefc7bbdd3"
+            }
+          ],
+          "startTime": 1790958005487771,
+          "duration": 101296,
+          "tags": [
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "vitess.io/vitess"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            }
+          ],
+          "logs": [],
+          "processID": "p2",
+          "warnings": null
+        },
+        {
+          "traceID": "26268d980217e0a5c160e44e0b549cae",
+          "spanID": "e1dee31eb6a56bad",
+          "operationName": "QueryEngine.GetPlan",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "26268d980217e0a5c160e44e0b549cae",
+              "spanID": "3e6f2dc0950621a4"
+            }
+          ],
+          "startTime": 1790958005588088,
+          "duration": 5,
+          "tags": [
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "vitess.io/vitess"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p3",
+          "warnings": null
+        },
+        {
+          "traceID": "26268d980217e0a5c160e44e0b549cae",
+          "spanID": "3e6f2dc0950621a4",
+          "operationName": "TabletServer.Execute",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "26268d980217e0a5c160e44e0b549cae",
+              "spanID": "5f4488866abc38ad"
+            }
+          ],
+          "startTime": 1790958005588066,
+          "duration": 844,
+          "tags": [
+            {
+              "key": "cell",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "key": "isolation-level",
+              "type": "string",
+              "value": "DEFAULT"
+            },
+            {
+              "key": "keyspace",
+              "type": "string",
+              "value": "demo"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "vitess.io/vitess"
+            },
+            {
+              "key": "shard",
+              "type": "string",
+              "value": "80-"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "sql-statement-type",
+              "type": "string",
+              "value": "SELECT"
+            },
+            {
+              "key": "workload_name",
+              "type": "string",
+              "value": ""
+            }
+          ],
+          "logs": [],
+          "processID": "p3",
+          "warnings": null
+        },
+        {
+          "traceID": "26268d980217e0a5c160e44e0b549cae",
+          "spanID": "13cfaa5e7c70ef4c",
+          "operationName": "QueryEngine.GetPlan",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "26268d980217e0a5c160e44e0b549cae",
+              "spanID": "be7340cf7ef24ce9"
+            }
+          ],
+          "startTime": 1790958005488029,
+          "duration": 3,
+          "tags": [
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "vitess.io/vitess"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p1",
+          "warnings": null
+        },
+        {
+          "traceID": "26268d980217e0a5c160e44e0b549cae",
+          "spanID": "d986fa219f9ee187",
+          "operationName": "TabletServer.Execute",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "26268d980217e0a5c160e44e0b549cae",
+              "spanID": "cae872f9e0adc933"
+            }
+          ],
+          "startTime": 1790958005488005,
+          "duration": 714,
+          "tags": [
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "vitess.io/vitess"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "sql-statement-type",
+              "type": "string",
+              "value": "SELECT"
+            }
+          ],
+          "logs": [],
+          "processID": "p1",
+          "warnings": null
+        },
+        {
+          "traceID": "26268d980217e0a5c160e44e0b549cae",
+          "spanID": "cae872f9e0adc933",
+          "operationName": "/queryservice.Query/Execute",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "26268d980217e0a5c160e44e0b549cae",
+              "spanID": "831736ac7a10e803"
+            }
+          ],
+          "startTime": 1790958005487995,
+          "duration": 726,
+          "tags": [
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "vitess.io/vitess"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "server"
+            }
+          ],
+          "logs": [],
+          "processID": "p1",
+          "warnings": null
+        },
+        {
+          "traceID": "26268d980217e0a5c160e44e0b549cae",
+          "spanID": "831736ac7a10e803",
+          "operationName": "/queryservice.Query/Execute",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "26268d980217e0a5c160e44e0b549cae",
+              "spanID": "0a2578fefc7bbdd3"
+            }
+          ],
+          "startTime": 1790958005487773,
+          "duration": 1043,
+          "tags": [
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "vitess.io/vitess"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            }
+          ],
+          "logs": [],
+          "processID": "p2",
+          "warnings": null
+        },
+        {
+          "traceID": "26268d980217e0a5c160e44e0b549cae",
+          "spanID": "b1cba659cae41d06",
+          "operationName": "vtgateHandler.ComQuery",
+          "references": [],
+          "startTime": 1790958005487645,
+          "duration": 101499,
+          "tags": [
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "vitess.io/vitess"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "sql-statement-type",
+              "type": "string",
+              "value": "SELECT"
+            }
+          ],
+          "logs": [],
+          "processID": "p2",
+          "warnings": null
+        },
+        {
+          "traceID": "26268d980217e0a5c160e44e0b549cae",
+          "spanID": "c48575736641511e",
+          "operationName": "Pool.Get",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "26268d980217e0a5c160e44e0b549cae",
+              "spanID": "72e0a10e07ed5b1e"
+            }
+          ],
+          "startTime": 1790958005588144,
+          "duration": 7,
+          "tags": [
+            {
+              "key": "active",
+              "type": "int64",
+              "value": 1
+            },
+            {
+              "key": "available",
+              "type": "int64",
+              "value": 16
+            },
+            {
+              "key": "capacity",
+              "type": "int64",
+              "value": 16
+            },
+            {
+              "key": "in_use",
+              "type": "int64",
+              "value": 0
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "vitess.io/vitess"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p3",
+          "warnings": null
+        },
+        {
+          "traceID": "26268d980217e0a5c160e44e0b549cae",
+          "spanID": "a21c9065a42d3642",
+          "operationName": "DBConn.Exec",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "26268d980217e0a5c160e44e0b549cae",
+              "spanID": "e33168153b2ee09f"
+            }
+          ],
+          "startTime": 1790958005588156,
+          "duration": 715,
+          "tags": [
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "vitess.io/vitess"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p3",
+          "warnings": null
+        },
+        {
+          "traceID": "26268d980217e0a5c160e44e0b549cae",
+          "spanID": "79bb69f4206a3b26",
+          "operationName": "Pool.Get",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "26268d980217e0a5c160e44e0b549cae",
+              "spanID": "93040e4e7a4754d3"
+            }
+          ],
+          "startTime": 1790958005488109,
+          "duration": 6,
+          "tags": [
+            {
+              "key": "active",
+              "type": "int64",
+              "value": 1
+            },
+            {
+              "key": "available",
+              "type": "int64",
+              "value": 16
+            },
+            {
+              "key": "capacity",
+              "type": "int64",
+              "value": 16
+            },
+            {
+              "key": "in_use",
+              "type": "int64",
+              "value": 0
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "vitess.io/vitess"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            }
+          ],
+          "logs": [],
+          "processID": "p1",
+          "warnings": null
+        }
+      ],
+      "processes": {
+        "p1": {
+          "serviceName": "vttablet",
+          "tags": [
+            {
+              "key": "service.instance.id",
+              "type": "string",
+              "value": "local-0000000100"
+            }
+          ]
+        },
+        "p2": {
+          "serviceName": "vtgate",
+          "tags": []
+        },
+        "p3": {
+          "serviceName": "vttablet",
+          "tags": [
+            {
+              "key": "service.instance.id",
+              "type": "string",
+              "value": "local-0000000200"
+            }
+          ]
+        }
+      },
+      "warnings": null
+    }
+  ],
+  "errors": null
+}

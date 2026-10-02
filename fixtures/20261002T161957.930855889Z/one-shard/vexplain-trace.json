@@ -1,0 +1,7 @@
+{
+  "format": "TRACE",
+  "ordinary_run_id": "a2e8d2ba-5068-4bf0-9bed-39ec39f74c4f",
+  "run_id": "6a3a58a8-2119-49e1-bebb-7c2c44e8f999",
+  "separate_execution": true,
+  "sql": "SELECT COUNT(*) FROM events WHERE user_id = 42"
+}

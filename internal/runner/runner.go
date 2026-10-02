@@ -15,6 +15,7 @@ import (
 type Options struct {
 	Root         string
 	ExperimentID string
+	DelayMS      int
 }
 type Result struct {
 	Directory  string           `json:"directory"`
@@ -29,11 +30,14 @@ func Run(ctx context.Context, options Options) (Result, error) {
 	default:
 		return Result{}, fmt.Errorf("unknown experiment %q", options.ExperimentID)
 	}
+	if options.DelayMS != 0 && (options.DelayMS < 100 || options.DelayMS > 1000) {
+		return Result{}, fmt.Errorf("delay must be 100–1000 ms")
+	}
 	root, e := filepath.Abs(options.Root)
 	if e != nil {
 		return Result{}, e
 	}
-	directory, gate, captureError := (evidence.Capturer{Root: root, ExperimentID: options.ExperimentID, DSN: "root@tcp(127.0.0.1:15306)/demo?timeout=5s&readTimeout=10s&writeTimeout=10s", Jaeger: "http://127.0.0.1:16686"}).Capture(ctx)
+	directory, gate, captureError := (evidence.Capturer{Root: root, ExperimentID: options.ExperimentID, DelayMS: options.DelayMS, DSN: "root@tcp(127.0.0.1:15306)/demo?timeout=5s&readTimeout=10s&writeTimeout=10s", Jaeger: "http://127.0.0.1:16686"}).Capture(ctx)
 	result := Result{Directory: directory, Recordings: []string{}, Gate: gate}
 	if directory == "" {
 		return result, captureError

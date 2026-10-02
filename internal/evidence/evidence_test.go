@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync/atomic"
 	"testing"
+	"time"
 )
 
 func copyFixture(t *testing.T) string {
@@ -163,5 +164,88 @@ func TestCleanupAfterCancellation(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(root, "run/fault-cleanup.txt")); err != nil {
 		t.Fatalf("cleanup did not run independently of cancelled context: %v", err)
+	}
+}
+
+func TestCleanupAfterFaultInstalled(t *testing.T) {
+	for _, scenario := range []string{"query-failure", "fault-failure", "cancellation"} {
+		t.Run(scenario, func(t *testing.T) {
+			root := t.TempDir()
+			demo := filepath.Join(root, "demo")
+			if err := os.Mkdir(demo, 0755); err != nil {
+				t.Fatal(err)
+			}
+			marker := filepath.Join(root, "delay")
+			installed := make(chan struct{})
+			script := "#!/bin/sh\ncase \"$1\" in\non) echo \"$2\" > '" + filepath.Join(root, "argument") + "'; cp '" + filepath.Join(root, "argument") + "' '" + marker + "'"
+			if scenario == "fault-failure" {
+				script += "; exit 1"
+			}
+			if scenario == "cancellation" {
+				script += "; sleep 10"
+			}
+			script += ";;\noff) rm -f '" + marker + "';;\nstatus) echo noqueue;;\nesac\n"
+			if err := os.WriteFile(filepath.Join(demo, "fault.sh"), []byte(script), 0755); err != nil {
+				t.Fatal(err)
+			}
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			if scenario == "cancellation" {
+				go func() {
+					defer close(installed)
+					for {
+						if _, err := os.Stat(marker); err == nil {
+							cancel()
+							return
+						}
+						select {
+						case <-ctx.Done():
+							return
+						case <-time.After(time.Millisecond):
+						}
+					}
+				}()
+			}
+			err := (Capturer{Root: root, DelayMS: 300, DSN: "invalid"}).experiment(ctx, filepath.Join(root, "run"), "slow-branch", "SELECT COUNT(*) FROM events", true)
+			if scenario == "cancellation" {
+				<-installed
+			}
+			if err == nil {
+				t.Fatal("expected capture failure")
+			}
+			argument, readErr := os.ReadFile(filepath.Join(root, "argument"))
+			if readErr != nil || strings.TrimSpace(string(argument)) != "300" {
+				t.Fatalf("fault was not installed with selected delay: %q %v", argument, readErr)
+			}
+			if _, err := os.Stat(marker); !os.IsNotExist(err) {
+				t.Fatalf("fault left installed: %v", err)
+			}
+			if _, err := os.Stat(filepath.Join(root, "run", "fault-cleanup.txt")); err != nil {
+				t.Fatalf("missing cleanup evidence: %v", err)
+			}
+		})
+	}
+}
+
+func TestRejectInvalidFaultEvidence(t *testing.T) {
+	for _, fault := range []map[string]any{
+		{"type": "database slowness", "shard": "80-", "delay_ms": 500},
+		{"type": "injected network delay", "shard": "-80", "delay_ms": 500},
+		{"type": "injected network delay", "shard": "80-", "delay_ms": 99},
+		{"type": "injected network delay", "shard": "80-", "delay_ms": 1001},
+	} {
+		directory := copyFixture(t)
+		path := filepath.Join(directory, "slow-branch", "execution.json")
+		var execution Execution
+		if err := readJSON(path, &execution); err != nil {
+			t.Fatal(err)
+		}
+		execution.Fault = fault
+		if err := saveJSON(path, execution); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := Audit(directory); err == nil {
+			t.Fatalf("accepted fault %#v", fault)
+		}
 	}
 }

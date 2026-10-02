@@ -1,0 +1,48 @@
+{
+  "shards": {
+    "-80": {
+      "keyspace": "demo",
+      "name": "-80",
+      "shard": {
+        "primary_alias": {
+          "cell": "local",
+          "uid": 100
+        },
+        "primary_term_start_time": {
+          "seconds": "1790952654",
+          "nanoseconds": 612417427
+        },
+        "key_range": {
+          "start": "",
+          "end": "gA=="
+        },
+        "source_shards": [],
+        "tablet_controls": [],
+        "is_primary_serving": true,
+        "vtorc_state": null
+      }
+    },
+    "80-": {
+      "keyspace": "demo",
+      "name": "80-",
+      "shard": {
+        "primary_alias": {
+          "cell": "local",
+          "uid": 200
+        },
+        "primary_term_start_time": {
+          "seconds": "1790952654",
+          "nanoseconds": 748224324
+        },
+        "key_range": {
+          "start": "gA==",
+          "end": ""
+        },
+        "source_shards": [],
+        "tablet_controls": [],
+        "is_primary_serving": true,
+        "vtorc_state": null
+      }
+    }
+  }
+}

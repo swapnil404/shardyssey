@@ -5,6 +5,16 @@
       "id": "one-shard",
       "label": "One shard",
       "recording": "recordings/demo/one-shard/recording.json"
+    },
+    {
+      "id": "fan-out",
+      "label": "Fan-out",
+      "recording": "recordings/demo/fan-out/recording.json"
+    },
+    {
+      "id": "slow-branch",
+      "label": "Slow branch",
+      "recording": "recordings/demo/slow-branch/recording.json"
     }
   ]
 }

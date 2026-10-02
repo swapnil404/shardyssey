@@ -5,14 +5,15 @@ import { fileURLToPath } from 'node:url';
 const web = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const source = resolve(web, '../fixtures/20261002T152725Z');
 const destination = resolve(web, 'public/recordings/demo');
-const experiment = 'one-shard';
-const recording = JSON.parse(await readFile(resolve(source, experiment, 'recording.json'), 'utf8'));
-if (recording.capture_status !== 'complete' || !recording.timing_available) throw new Error('Cannot bundle an incomplete recording');
+const experiments = ['one-shard', 'fan-out', 'slow-branch'];
 const read = async (path) => JSON.parse(await readFile(path, 'utf8'));
 const write = async (path, value) => {
   await mkdir(dirname(path), { recursive: true });
   await writeFile(path, JSON.stringify(value, null, 2) + '\n');
 };
+for (const experiment of experiments) {
+const recording = JSON.parse(await readFile(resolve(source, experiment, 'recording.json'), 'utf8'));
+if (recording.capture_status !== 'complete' || !recording.timing_available) throw new Error('Cannot bundle an incomplete recording');
 await mkdir(resolve(destination, experiment), { recursive: true });
 // Bundle only the selected demo execution, without private connection details.
 const safeTags = new Set(['service.instance.id', 'otel.scope.name', 'span.kind', 'sql-statement-type', 'method', 'cell', 'keyspace', 'shard', 'isolation-level', 'workload_name', 'active', 'available', 'capacity', 'in_use', 'otel.status_code', 'error']);
@@ -44,8 +45,9 @@ for (const [key, relative] of Object.entries(recording.raw_evidence_paths)) {
 }
 // Ensure evidence links in the inspector resolve relative to the recording.
 await write(resolve(destination, experiment, 'recording.json'), recording);
+}
 await write(resolve(web, 'public/experiments.json'), {
   schema_version: 1,
-  experiments: [{ id: experiment, label: 'One shard', recording: 'recordings/demo/one-shard/recording.json' }],
+  experiments: experiments.map(id => ({ id, label: {'one-shard': 'One shard', 'fan-out': 'Fan-out', 'slow-branch': 'Slow branch'}[id], recording: `recordings/demo/${id}/recording.json` })),
 });
-console.log('Bundled real one-shard recording and selected evidence.');
+console.log('Bundled real experiment recordings and selected evidence.');

@@ -1,0 +1,7 @@
+{
+  "format": "QUERIES",
+  "ordinary_run_id": "a7f354dd-adc3-4d6e-9700-e35e30f597f6",
+  "run_id": "c2d90009-4c01-43e8-a5ab-47506b208347",
+  "separate_execution": true,
+  "sql": "SELECT COUNT(*) FROM events"
+}

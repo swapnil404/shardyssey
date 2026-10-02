@@ -28,16 +28,20 @@ func run() error {
 	case "capture":
 		flags := flag.NewFlagSet("capture", flag.ContinueOnError)
 		root := flags.String("root", ".", "repository root")
+		delay := flags.Int("delay-ms", 500, "injected network delay on shard 80- (100–1000 ms); slow-branch only")
 		experiment := flags.String("experiment", "", "one-shard, fan-out, or slow-branch; default captures all")
 		if err := flags.Parse(os.Args[2:]); err != nil {
 			return err
+		}
+		if *delay < 100 || *delay > 1000 {
+			return fmt.Errorf("delay must be 100–1000 ms")
 		}
 		if flags.NArg() != 0 {
 			return fmt.Errorf("unexpected capture arguments")
 		}
 		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 		defer stop()
-		result, err := runner.Run(ctx, runner.Options{Root: *root, ExperimentID: *experiment})
+		result, err := runner.Run(ctx, runner.Options{Root: *root, ExperimentID: *experiment, DelayMS: *delay})
 		if encodeError := json.NewEncoder(os.Stdout).Encode(result); encodeError != nil {
 			return encodeError
 		}
