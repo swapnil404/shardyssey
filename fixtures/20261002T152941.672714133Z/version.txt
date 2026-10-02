@@ -1,0 +1,1 @@
+vtgate version Version: 24.0.0 (Git revision e8d9fa81d351066497a8d99f92e9e9f2ecfd69d0 branch 'HEAD') built on Thu Apr 30 11:48:58 UTC 2026 by vitess@buildkitsandbox using go1.26.2 linux/amd64

@@ -10,6 +10,8 @@ import (
 	"syscall"
 
 	"shardyssey/internal/evidence"
+	"shardyssey/internal/recording"
+	"shardyssey/internal/runner"
 )
 
 func main() {
@@ -20,12 +22,13 @@ func main() {
 }
 func run() error {
 	if len(os.Args) < 2 {
-		return fmt.Errorf("usage: shardyssey capture [--root directory] | check evidence-directory")
+		return fmt.Errorf("usage: shardyssey capture [--root directory] [--experiment id] | normalize evidence-directory | check evidence-directory")
 	}
 	switch os.Args[1] {
 	case "capture":
 		flags := flag.NewFlagSet("capture", flag.ContinueOnError)
 		root := flags.String("root", ".", "repository root")
+		experiment := flags.String("experiment", "", "one-shard, fan-out, or slow-branch; default captures all")
 		if err := flags.Parse(os.Args[2:]); err != nil {
 			return err
 		}
@@ -34,15 +37,23 @@ func run() error {
 		}
 		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 		defer stop()
-		directory, report, err := (evidence.Capturer{Root: *root, DSN: "root@tcp(127.0.0.1:15306)/demo?timeout=5s&readTimeout=10s&writeTimeout=10s", Jaeger: "http://127.0.0.1:16686"}).Capture(ctx)
-		if err != nil {
-			return fmt.Errorf("capture %s: %w", directory, err)
+		result, err := runner.Run(ctx, runner.Options{Root: *root, ExperimentID: *experiment})
+		if encodeError := json.NewEncoder(os.Stdout).Encode(result); encodeError != nil {
+			return encodeError
 		}
-		if err = json.NewEncoder(os.Stdout).Encode(report); err != nil {
+		if err != nil {
+			return fmt.Errorf("capture %s: %w", result.Directory, err)
+		}
+		return nil
+	case "normalize":
+		if len(os.Args) != 3 {
+			return fmt.Errorf("usage: shardyssey normalize evidence-directory")
+		}
+		paths, err := recording.ExportDirectory(os.Args[2])
+		if err != nil {
 			return err
 		}
-		fmt.Println(directory)
-		return nil
+		return json.NewEncoder(os.Stdout).Encode(paths)
 	case "check":
 		if len(os.Args) != 3 {
 			return fmt.Errorf("usage: shardyssey check evidence-directory")

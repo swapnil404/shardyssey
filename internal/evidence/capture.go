@@ -5,17 +5,12 @@ import (
 	"context"
 	"crypto/rand"
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
-	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"sort"
-	"strconv"
+	"shardyssey/internal/traces"
 	"strings"
 	"syscall"
 	"time"
@@ -35,9 +30,10 @@ func (b *evidenceBuffer) Write(p []byte) (int, error) {
 }
 
 type Capturer struct {
-	Root   string
-	DSN    string
-	Jaeger string
+	Root         string
+	ExperimentID string
+	DSN          string
+	Jaeger       string
 }
 
 func (c Capturer) command(ctx context.Context, args ...string) ([]byte, error) {
@@ -75,6 +71,11 @@ func newID() string {
 
 // Capture saves raw query results, topology, explain output, and traces.
 func (c Capturer) Capture(ctx context.Context) (directory string, report *Report, err error) {
+	switch c.ExperimentID {
+	case "", "one-shard", "fan-out", "slow-branch":
+	default:
+		return "", nil, fmt.Errorf("unknown experiment %q", c.ExperimentID)
+	}
 	c.Root, err = filepath.Abs(c.Root)
 	if err != nil {
 		return
@@ -90,7 +91,7 @@ func (c Capturer) Capture(ctx context.Context) (directory string, report *Report
 		return
 	}
 	defer syscall.Flock(int(lock.Fd()), syscall.LOCK_UN)
-	directory = filepath.Join(c.Root, "fixtures", time.Now().UTC().Format("20060102T150405Z"))
+	directory = filepath.Join(c.Root, "fixtures", time.Now().UTC().Format("20060102T150405.000000000Z"))
 	if err = os.Mkdir(directory, 0755); err != nil {
 		return
 	}
@@ -98,7 +99,10 @@ func (c Capturer) Capture(ctx context.Context) (directory string, report *Report
 		return
 	}
 	defer func() {
-		status := map[string]any{"status": "complete", "gate": "passed"}
+		status := map[string]any{"status": "complete"}
+		if report != nil {
+			status["gate"] = report.Gate
+		}
 		if err != nil {
 			status = map[string]any{"status": "failed", "warning": err.Error(), "usable_for_timed_replay": false}
 		}
@@ -118,6 +122,12 @@ func (c Capturer) Capture(ctx context.Context) (directory string, report *Report
 		return
 	}
 	if err = os.WriteFile(filepath.Join(directory, "version.txt"), version, 0644); err != nil {
+		return
+	}
+	if err = saveJSON(filepath.Join(directory, "environment.json"), map[string]any{
+		"layout": "separate containers on one host", "clock_uncertainty_us": nil,
+		"clock_source": "shared host kernel clock; skew not separately measured",
+	}); err != nil {
 		return
 	}
 	for _, alias := range []string{"local-0000000100", "local-0000000200"} {
@@ -142,9 +152,15 @@ func (c Capturer) Capture(ctx context.Context) (directory string, report *Report
 		name, query string
 		delayed     bool
 	}{{"one-shard", "SELECT COUNT(*) FROM events WHERE user_id = 42", false}, {"fan-out", "SELECT COUNT(*) FROM events", false}, {"slow-branch", "SELECT COUNT(*) FROM events", true}} {
+		if c.ExperimentID != "" && experiment.name != c.ExperimentID {
+			continue
+		}
 		if err = c.experiment(ctx, filepath.Join(directory, experiment.name), experiment.name, experiment.query, experiment.delayed); err != nil {
 			return
 		}
+	}
+	if c.ExperimentID != "" {
+		return
 	}
 	report, err = Audit(directory)
 	if err != nil {
@@ -209,12 +225,14 @@ func (c Capturer) experiment(ctx context.Context, directory, name, query string,
 	if err = saveJSON(filepath.Join(directory, "execution.json"), execution); err != nil {
 		return
 	}
-	raw, e := Retrieve(ctx, c.Jaeger, execution.Start, execution.End)
-	if e != nil {
-		return e
+	raw, retrievalError := Retrieve(ctx, c.Jaeger, execution.Start, execution.End)
+	if len(raw) > 0 {
+		if err = os.WriteFile(filepath.Join(directory, "jaeger.json"), raw, 0644); err != nil {
+			return
+		}
 	}
-	if err = os.WriteFile(filepath.Join(directory, "jaeger.json"), raw, 0644); err != nil {
-		return
+	if retrievalError != nil {
+		return retrievalError
 	}
 	if err = c.commandFile(ctx, filepath.Join(directory, "fault-after-query.txt"), "fault.sh", "status"); err != nil {
 		return
@@ -266,88 +284,7 @@ func queryTSV(ctx context.Context, connection *sql.Conn, query string) ([]byte, 
 	return result.Bytes(), rows.Err()
 }
 
-func fingerprint(trace Trace) string {
-	spans := append([]Span(nil), trace.Spans...)
-	sort.Slice(spans, func(i, j int) bool { return spans[i].ID < spans[j].ID })
-	var result strings.Builder
-	for _, span := range spans {
-		refs := append([]Reference(nil), span.References...)
-		sort.Slice(refs, func(i, j int) bool { return refs[i].SpanID < refs[j].SpanID })
-		fmt.Fprintf(&result, "%s/%d/%d/%v;", span.ID, span.Start, span.Duration, refs)
-	}
-	return result.String()
-}
-
-// Retrieve preserves the complete raw candidate, including unknown fields and repeated RPCs.
+// Retrieve remains available to evidence callers; trace export lives in traces.
 func Retrieve(ctx context.Context, endpoint string, start, end int64) ([]byte, error) {
-	ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
-	defer cancel()
-	client := http.Client{Timeout: 5 * time.Second}
-	previous := ""
-	params := url.Values{"service": {"vtgate"}, "start": {strconv.FormatInt(start, 10)}, "end": {strconv.FormatInt(end, 10)}, "limit": {"100"}}
-	for {
-		request, e := http.NewRequestWithContext(ctx, http.MethodGet, strings.TrimRight(endpoint, "/")+"/api/traces?"+params.Encode(), nil)
-		if e != nil {
-			return nil, e
-		}
-		response, e := client.Do(request)
-		if e != nil {
-			return nil, e
-		}
-		body, e := io.ReadAll(io.LimitReader(response.Body, maxEvidence+1))
-		response.Body.Close()
-		if e != nil {
-			return nil, e
-		}
-		if response.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("Jaeger returned HTTP %d", response.StatusCode)
-		}
-		if len(body) > maxEvidence {
-			return nil, fmt.Errorf("trace response exceeds size limit")
-		}
-		var raw struct {
-			Data   []json.RawMessage `json:"data"`
-			Errors json.RawMessage   `json:"errors"`
-		}
-		if e = json.Unmarshal(body, &raw); e != nil {
-			return nil, e
-		}
-		if len(raw.Errors) > 0 && string(raw.Errors) != "null" && string(raw.Errors) != "[]" {
-			return nil, fmt.Errorf("Jaeger search errors: %s", raw.Errors)
-		}
-		var candidates []json.RawMessage
-		var candidate Trace
-		for _, item := range raw.Data {
-			var trace Trace
-			if e = json.Unmarshal(item, &trace); e != nil {
-				return nil, e
-			}
-			for _, span := range trace.Spans {
-				if (span.Operation == "executor.Execute" || span.Operation == "executor.StreamExecute") && span.Start >= start && span.Start <= end {
-					candidates = append(candidates, item)
-					candidate = trace
-					break
-				}
-			}
-		}
-		if len(candidates) > 1 {
-			return nil, fmt.Errorf("ambiguous query correlation: multiple executor traces in isolated interval")
-		}
-		if len(candidates) == 1 {
-			current := fingerprint(candidate)
-			if current == previous {
-				raw.Data = candidates
-				output, e := json.MarshalIndent(raw, "", "  ")
-				return append(output, '\n'), e
-			}
-			previous = current
-		} else {
-			previous = ""
-		}
-		select {
-		case <-ctx.Done():
-			return nil, fmt.Errorf("trace export did not stabilize: %w", ctx.Err())
-		case <-time.After(time.Second):
-		}
-	}
+	return traces.Retrieve(ctx, endpoint, start, end)
 }

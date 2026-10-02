@@ -1,0 +1,453 @@
+{
+  "schema_version": 1,
+  "run_id": "e388c59f-6ac6-43ee-a706-5ff873125bc0",
+  "experiment_id": "one-shard",
+  "vitess_version": "24.0.0",
+  "topology_snapshot": {
+    "tablets": [
+      {
+        "alias": "local-0000000100",
+        "keyspace": "demo",
+        "shard": "-80",
+        "type": "PRIMARY",
+        "evidence_path": "../topology-local-0000000100.json"
+      },
+      {
+        "alias": "local-0000000200",
+        "keyspace": "demo",
+        "shard": "80-",
+        "type": "PRIMARY",
+        "evidence_path": "../topology-local-0000000200.json"
+      }
+    ],
+    "vschema": {
+      "sharded": true,
+      "vindexes": {
+        "user_hash": {
+          "type": "hash",
+          "params": {},
+          "owner": ""
+        }
+      },
+      "tables": {
+        "events": {
+          "type": "",
+          "column_vindexes": [
+            {
+              "column": "user_id",
+              "name": "user_hash",
+              "columns": []
+            }
+          ],
+          "auto_increment": null,
+          "columns": [],
+          "pinned": "",
+          "column_list_authoritative": false,
+          "source": ""
+        }
+      },
+      "require_explicit_routing": false,
+      "foreign_key_mode": "unspecified",
+      "multi_tenant_spec": null
+    },
+    "shards": {
+      "shards": {
+        "-80": {
+          "keyspace": "demo",
+          "name": "-80",
+          "shard": {
+            "primary_alias": {
+              "cell": "local",
+              "uid": 100
+            },
+            "primary_term_start_time": {
+              "seconds": "1790952654",
+              "nanoseconds": 612417427
+            },
+            "key_range": {
+              "start": "",
+              "end": "gA=="
+            },
+            "source_shards": [],
+            "tablet_controls": [],
+            "is_primary_serving": true,
+            "vtorc_state": null
+          }
+        },
+        "80-": {
+          "keyspace": "demo",
+          "name": "80-",
+          "shard": {
+            "primary_alias": {
+              "cell": "local",
+              "uid": 200
+            },
+            "primary_term_start_time": {
+              "seconds": "1790952654",
+              "nanoseconds": 748224324
+            },
+            "key_range": {
+              "start": "gA==",
+              "end": ""
+            },
+            "source_shards": [],
+            "tablet_controls": [],
+            "is_primary_serving": true,
+            "vtorc_state": null
+          }
+        }
+      }
+    },
+    "layout": "separate containers on one host"
+  },
+  "query_template": "SELECT COUNT(*) FROM events WHERE user_id = 42",
+  "parameters": {
+    "user_id": 42
+  },
+  "fault_configuration": null,
+  "client_elapsed_ms": 0.866063,
+  "query_result": {
+    "columns": [
+      "count(*)"
+    ],
+    "rows": [
+      [
+        "2"
+      ]
+    ],
+    "evidence_path": "result.tsv"
+  },
+  "trace_id": "e376996487ac63ddd593cdb09db61ca8",
+  "capture_status": "complete",
+  "raw_evidence_paths": {
+    "environment": "../environment.json",
+    "execution": "execution.json",
+    "fault-after-query": "fault-after-query.txt",
+    "fault-before": "fault-before.txt",
+    "fault_cleanup": "fault-cleanup.txt",
+    "result": "result.tsv",
+    "shards.json": "../shards.json",
+    "topology:local-0000000100": "../topology-local-0000000100.json",
+    "topology:local-0000000200": "../topology-local-0000000200.json",
+    "trace": "jaeger.json",
+    "version": "../version.txt",
+    "vexplain-plan": "vexplain-plan.tsv",
+    "vexplain-plan_execution": "vexplain-plan.json",
+    "vexplain-queries": "vexplain-queries.tsv",
+    "vexplain-queries_execution": "vexplain-queries.json",
+    "vexplain-trace": "vexplain-trace.tsv",
+    "vexplain-trace_execution": "vexplain-trace.json",
+    "vschema.json": "../vschema.json"
+  },
+  "spans": [
+    {
+      "id": "4231f3aceffe6c35",
+      "parent_id": null,
+      "service": "vtgate",
+      "operation": "vtgateHandler.ComQuery",
+      "start": 1790954982583320,
+      "end": 1790954982584078,
+      "duration_us": 758,
+      "status": null,
+      "attributes": {
+        "otel.scope.name": "vitess.io/vitess",
+        "span.kind": "internal",
+        "sql-statement-type": "SELECT"
+      },
+      "references": [],
+      "evidence_path": "jaeger.json",
+      "evidence_pointer": "/data/0/spans/2"
+    },
+    {
+      "id": "1ea0cdce8bc03ee5",
+      "parent_id": "4231f3aceffe6c35",
+      "service": "vtgate",
+      "operation": "executor.Execute",
+      "start": 1790954982583326,
+      "end": 1790954982584070,
+      "duration_us": 744,
+      "status": null,
+      "attributes": {
+        "method": "Execute",
+        "otel.scope.name": "vitess.io/vitess",
+        "span.kind": "internal",
+        "sql-statement-type": "SELECT"
+      },
+      "references": [
+        {
+          "type": "CHILD_OF",
+          "trace_id": "e376996487ac63ddd593cdb09db61ca8",
+          "span_id": "4231f3aceffe6c35"
+        }
+      ],
+      "evidence_path": "jaeger.json",
+      "evidence_pointer": "/data/0/spans/1"
+    },
+    {
+      "id": "d067c3fb68584e83",
+      "parent_id": "1ea0cdce8bc03ee5",
+      "service": "vtgate",
+      "operation": "/queryservice.Query/Execute",
+      "start": 1790954982583420,
+      "end": 1790954982584053,
+      "duration_us": 633,
+      "status": null,
+      "attributes": {
+        "otel.scope.name": "vitess.io/vitess",
+        "span.kind": "client"
+      },
+      "references": [
+        {
+          "type": "CHILD_OF",
+          "trace_id": "e376996487ac63ddd593cdb09db61ca8",
+          "span_id": "1ea0cdce8bc03ee5"
+        }
+      ],
+      "evidence_path": "jaeger.json",
+      "evidence_pointer": "/data/0/spans/0"
+    },
+    {
+      "id": "9c6cfe46aae9853e",
+      "parent_id": "d067c3fb68584e83",
+      "service": "vttablet",
+      "operation": "/queryservice.Query/Execute",
+      "start": 1790954982583601,
+      "end": 1790954982583977,
+      "duration_us": 376,
+      "status": null,
+      "attributes": {
+        "otel.scope.name": "vitess.io/vitess",
+        "span.kind": "server"
+      },
+      "references": [
+        {
+          "type": "CHILD_OF",
+          "trace_id": "e376996487ac63ddd593cdb09db61ca8",
+          "span_id": "d067c3fb68584e83"
+        }
+      ],
+      "evidence_path": "jaeger.json",
+      "evidence_pointer": "/data/0/spans/10"
+    },
+    {
+      "id": "0501f5f64ea29e48",
+      "parent_id": "9c6cfe46aae9853e",
+      "service": "vttablet",
+      "operation": "TabletServer.Execute",
+      "start": 1790954982583608,
+      "end": 1790954982583973,
+      "duration_us": 365,
+      "status": null,
+      "attributes": {
+        "otel.scope.name": "vitess.io/vitess",
+        "span.kind": "internal",
+        "sql-statement-type": "SELECT"
+      },
+      "references": [
+        {
+          "type": "CHILD_OF",
+          "trace_id": "e376996487ac63ddd593cdb09db61ca8",
+          "span_id": "9c6cfe46aae9853e"
+        }
+      ],
+      "evidence_path": "jaeger.json",
+      "evidence_pointer": "/data/0/spans/9"
+    },
+    {
+      "id": "f2f6a259003599c0",
+      "parent_id": "0501f5f64ea29e48",
+      "service": "vttablet",
+      "operation": "TabletServer.Execute",
+      "start": 1790954982583613,
+      "end": 1790954982583972,
+      "duration_us": 359,
+      "status": null,
+      "attributes": {
+        "cell": "",
+        "isolation-level": "DEFAULT",
+        "keyspace": "demo",
+        "otel.scope.name": "vitess.io/vitess",
+        "shard": "-80",
+        "span.kind": "internal",
+        "sql-statement-type": "SELECT",
+        "workload_name": ""
+      },
+      "references": [
+        {
+          "type": "CHILD_OF",
+          "trace_id": "e376996487ac63ddd593cdb09db61ca8",
+          "span_id": "0501f5f64ea29e48"
+        }
+      ],
+      "evidence_path": "jaeger.json",
+      "evidence_pointer": "/data/0/spans/8"
+    },
+    {
+      "id": "738cc46ebc8eabf0",
+      "parent_id": "f2f6a259003599c0",
+      "service": "vttablet",
+      "operation": "QueryEngine.GetPlan",
+      "start": 1790954982583628,
+      "end": 1790954982583632,
+      "duration_us": 4,
+      "status": null,
+      "attributes": {
+        "otel.scope.name": "vitess.io/vitess",
+        "span.kind": "internal"
+      },
+      "references": [
+        {
+          "type": "CHILD_OF",
+          "trace_id": "e376996487ac63ddd593cdb09db61ca8",
+          "span_id": "f2f6a259003599c0"
+        }
+      ],
+      "evidence_path": "jaeger.json",
+      "evidence_pointer": "/data/0/spans/3"
+    },
+    {
+      "id": "d380ce58e88a0175",
+      "parent_id": "f2f6a259003599c0",
+      "service": "vttablet",
+      "operation": "QueryExecutor.getConn",
+      "start": 1790954982583662,
+      "end": 1790954982583671,
+      "duration_us": 9,
+      "status": null,
+      "attributes": {
+        "otel.scope.name": "vitess.io/vitess",
+        "span.kind": "internal"
+      },
+      "references": [
+        {
+          "type": "CHILD_OF",
+          "trace_id": "e376996487ac63ddd593cdb09db61ca8",
+          "span_id": "f2f6a259003599c0"
+        }
+      ],
+      "evidence_path": "jaeger.json",
+      "evidence_pointer": "/data/0/spans/5"
+    },
+    {
+      "id": "9a15746dbb5c9f07",
+      "parent_id": "d380ce58e88a0175",
+      "service": "vttablet",
+      "operation": "Pool.Get",
+      "start": 1790954982583663,
+      "end": 1790954982583669,
+      "duration_us": 6,
+      "status": null,
+      "attributes": {
+        "active": 1,
+        "available": 16,
+        "capacity": 16,
+        "in_use": 0,
+        "otel.scope.name": "vitess.io/vitess",
+        "span.kind": "internal"
+      },
+      "references": [
+        {
+          "type": "CHILD_OF",
+          "trace_id": "e376996487ac63ddd593cdb09db61ca8",
+          "span_id": "d380ce58e88a0175"
+        }
+      ],
+      "evidence_path": "jaeger.json",
+      "evidence_pointer": "/data/0/spans/4"
+    },
+    {
+      "id": "ea0db3754122c3be",
+      "parent_id": "f2f6a259003599c0",
+      "service": "vttablet",
+      "operation": "QueryExecutor.execDBConn",
+      "start": 1790954982583673,
+      "end": 1790954982583959,
+      "duration_us": 286,
+      "status": null,
+      "attributes": {
+        "otel.scope.name": "vitess.io/vitess",
+        "span.kind": "internal"
+      },
+      "references": [
+        {
+          "type": "CHILD_OF",
+          "trace_id": "e376996487ac63ddd593cdb09db61ca8",
+          "span_id": "f2f6a259003599c0"
+        }
+      ],
+      "evidence_path": "jaeger.json",
+      "evidence_pointer": "/data/0/spans/7"
+    },
+    {
+      "id": "c46252c9625be823",
+      "parent_id": "ea0db3754122c3be",
+      "service": "vttablet",
+      "operation": "DBConn.Exec",
+      "start": 1790954982583676,
+      "end": 1790954982583956,
+      "duration_us": 280,
+      "status": null,
+      "attributes": {
+        "otel.scope.name": "vitess.io/vitess",
+        "span.kind": "internal"
+      },
+      "references": [
+        {
+          "type": "CHILD_OF",
+          "trace_id": "e376996487ac63ddd593cdb09db61ca8",
+          "span_id": "ea0db3754122c3be"
+        }
+      ],
+      "evidence_path": "jaeger.json",
+      "evidence_pointer": "/data/0/spans/6"
+    }
+  ],
+  "branches": [
+    {
+      "shard": "-80",
+      "tablet": "local-0000000100",
+      "rpc_span_id": "d067c3fb68584e83",
+      "supporting_span_ids": [
+        "f2f6a259003599c0",
+        "0501f5f64ea29e48",
+        "9c6cfe46aae9853e",
+        "d067c3fb68584e83",
+        "1ea0cdce8bc03ee5",
+        "4231f3aceffe6c35"
+      ],
+      "identity_source": "service.instance.id + span keyspace/shard + captured topology",
+      "topology_evidence_path": "../topology-local-0000000100.json",
+      "start": 1790954982583420,
+      "end": 1790954982584053,
+      "duration_us": 633
+    }
+  ],
+  "explain_runs": [
+    {
+      "run_id": "61010efa-54ee-4ef2-9ea4-28a16288d3b8",
+      "format": "PLAN",
+      "raw_output": "JSON\n{\n\t\"OperatorType\": \"Route\",\n\t\"Variant\": \"EqualUnique\",\n\t\"Keyspace\": {\n\t\t\"Name\": \"demo\",\n\t\t\"Sharded\": true\n\t},\n\t\"FieldQuery\": \"select count(*) from `events` where 1 != 1\",\n\t\"Query\": \"select count(*) from `events` where user_id = :user_id /* INT64 */\",\n\t\"Values\": [\n\t\t\":user_id\"\n\t],\n\t\"Vindex\": \"user_hash\"\n}\n",
+      "separate_execution": true,
+      "evidence_path": "vexplain-plan.tsv"
+    },
+    {
+      "run_id": "a3a6a859-091a-42dc-84f2-d77004a34e35",
+      "format": "QUERIES",
+      "raw_output": "#\tkeyspace\tshard\tquery\n0\tdemo\t-80\tselect count(*) from `events` where user_id = 42\n",
+      "separate_execution": true,
+      "evidence_path": "vexplain-queries.tsv"
+    },
+    {
+      "run_id": "fc0e5c48-12c6-441a-8d4c-fc3b783e741b",
+      "format": "TRACE",
+      "raw_output": "Trace\n{\n\t\"OperatorType\": \"Route\",\n\t\"Variant\": \"EqualUnique\",\n\t\"Keyspace\": {\n\t\t\"Name\": \"demo\",\n\t\t\"Sharded\": true\n\t},\n\t\"NoOfCalls\": 1,\n\t\"AvgNumberOfRows\": 1,\n\t\"MedianNumberOfRows\": 1,\n\t\"ShardsQueried\": 1,\n\t\"FieldQuery\": \"select count(*) from `events` where 1 != 1\",\n\t\"Query\": \"select count(*) from `events` where user_id = :user_id /* INT64 */\",\n\t\"Values\": [\n\t\t\":user_id\"\n\t],\n\t\"Vindex\": \"user_hash\"\n}\n",
+      "separate_execution": true,
+      "evidence_path": "vexplain-trace.tsv"
+    }
+  ],
+  "warnings": [],
+  "root_span_id": "4231f3aceffe6c35",
+  "timing_available": true,
+  "timestamp_unit": "unix_microseconds",
+  "clock_uncertainty_us": null
+}

@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "run_id": null,
+  "experiment_id": "slow-branch",
+  "vitess_version": "24.0.0",
+  "topology_snapshot": {
+    "tablets": [
+      {
+        "alias": "local-0000000100",
+        "keyspace": "demo",
+        "shard": "-80",
+        "type": "PRIMARY",
+        "evidence_path": "../topology-local-0000000100.json"
+      },
+      {
+        "alias": "local-0000000200",
+        "keyspace": "demo",
+        "shard": "80-",
+        "type": "PRIMARY",
+        "evidence_path": "../topology-local-0000000200.json"
+      }
+    ],
+    "vschema": {
+      "sharded": true,
+      "vindexes": {
+        "user_hash": {
+          "type": "hash",
+          "params": {},
+          "owner": ""
+        }
+      },
+      "tables": {
+        "events": {
+          "type": "",
+          "column_vindexes": [
+            {
+              "column": "user_id",
+              "name": "user_hash",
+              "columns": []
+            }
+          ],
+          "auto_increment": null,
+          "columns": [],
+          "pinned": "",
+          "column_list_authoritative": false,
+          "source": ""
+        }
+      },
+      "require_explicit_routing": false,
+      "foreign_key_mode": "unspecified",
+      "multi_tenant_spec": null
+    },
+    "shards": {
+      "shards": {
+        "-80": {
+          "keyspace": "demo",
+          "name": "-80",
+          "shard": {
+            "primary_alias": {
+              "cell": "local",
+              "uid": 100
+            },
+            "primary_term_start_time": {
+              "seconds": "1790952654",
+              "nanoseconds": 612417427
+            },
+            "key_range": {
+              "start": "",
+              "end": "gA=="
+            },
+            "source_shards": [],
+            "tablet_controls": [],
+            "is_primary_serving": true,
+            "vtorc_state": null
+          }
+        },
+        "80-": {
+          "keyspace": "demo",
+          "name": "80-",
+          "shard": {
+            "primary_alias": {
+              "cell": "local",
+              "uid": 200
+            },
+            "primary_term_start_time": {
+              "seconds": "1790952654",
+              "nanoseconds": 748224324
+            },
+            "key_range": {
+              "start": "gA==",
+              "end": ""
+            },
+            "source_shards": [],
+            "tablet_controls": [],
+            "is_primary_serving": true,
+            "vtorc_state": null
+          }
+        }
+      }
+    },
+    "layout": null
+  },
+  "query_template": null,
+  "parameters": {},
+  "fault_configuration": null,
+  "client_elapsed_ms": null,
+  "query_result": null,
+  "trace_id": null,
+  "capture_status": "incomplete",
+  "raw_evidence_paths": {
+    "capture_status": "../capture-status.json",
+    "fault-before": "fault-before.txt",
+    "fault_cleanup": "fault-cleanup.txt",
+    "shards.json": "../shards.json",
+    "topology:local-0000000100": "../topology-local-0000000100.json",
+    "topology:local-0000000200": "../topology-local-0000000200.json",
+    "version": "../version.txt",
+    "vschema.json": "../vschema.json"
+  },
+  "spans": [],
+  "branches": [],
+  "explain_runs": [],
+  "warnings": [
+    {
+      "code": "missing_execution",
+      "message": "Query identity, result timing, and parameters are unavailable.",
+      "span_id": null
+    },
+    {
+      "code": "missing_result",
+      "message": "Query result is unavailable.",
+      "span_id": null
+    },
+    {
+      "code": "missing_explain",
+      "message": "Separate VEXPLAIN PLAN evidence is unavailable.",
+      "span_id": null
+    },
+    {
+      "code": "missing_explain",
+      "message": "Separate VEXPLAIN QUERIES evidence is unavailable.",
+      "span_id": null
+    },
+    {
+      "code": "missing_explain",
+      "message": "Separate VEXPLAIN TRACE evidence is unavailable.",
+      "span_id": null
+    },
+    {
+      "code": "missing_trace",
+      "message": "No query trace was captured; absent branches cannot establish that a shard did not run.",
+      "span_id": null
+    },
+    {
+      "code": "capture_failed",
+      "message": "context canceled",
+      "span_id": null
+    }
+  ],
+  "root_span_id": null,
+  "timing_available": false,
+  "timestamp_unit": "unix_microseconds",
+  "clock_uncertainty_us": null
+}
