@@ -51,3 +51,18 @@ await write(resolve(web, 'public/experiments.json'), {
   experiments: experiments.map(id => ({ id, label: {'one-shard': 'One shard', 'fan-out': 'Fan-out', 'slow-branch': 'Slow branch'}[id], recording: `recordings/demo/${id}/recording.json` })),
 });
 console.log('Bundled real experiment recordings and selected evidence.');
+
+const seed = {};
+for (const shard of ['-80', '80-']) {
+  const filename = `seed-${shard}.tsv`;
+  const raw = await readFile(resolve(source, filename), 'utf8');
+  const lines = raw.trim().split('\n');
+  if (lines.shift() !== 'user_id\tevent_id\tcategory') throw new Error('Unknown seed columns');
+  seed[shard] = lines.map(line => {
+    const [user_id, event_id, category] = line.split('\t');
+    if (!/^\d+$/.test(user_id) || !/^\d+$/.test(event_id) || !['view', 'click'].includes(category)) throw new Error('Invalid demo seed');
+    return {user_id: Number(user_id), event_id: Number(event_id), category};
+  });
+  await writeFile(resolve(destination, filename), raw);
+}
+await write(resolve(destination, 'seed.json'), {schema_version: 1, shards: seed});

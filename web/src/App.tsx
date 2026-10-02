@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Comparison, type LoadedRecording } from './Comparison';
-import { Replay } from './Replay';
+import { type LoadedRecording } from './comparison';
+import { Experience } from './Experience';
+import { parseSeed, type Seed } from './Cluster';
 import { parseRecording } from './recording';
-const choices = [{id: 'one-shard', label: 'One shard'}, {id: 'fan-out', label: 'Fan-out'}, {id: 'slow-branch', label: 'Slow branch'}];
+const choices = [{id: 'one-shard', label: 'Find one user', subtitle: 'A key finds the right shard.'}, {id: 'fan-out', label: 'Count everyone', subtitle: 'One query, both shards.'}, {id: 'slow-branch', label: 'Wait for one shard', subtitle: 'An answer needs every part.'}];
 export function App() {
   const [experiment, setExperiment] = useState('one-shard');
   const [delay, setDelay] = useState('500');
   const [result, setResult] = useState<{key: string; items: LoadedRecording[]}>({key: '', items: []});
   const [error, setError] = useState('');
+  const [seed, setSeed] = useState<Seed | null>(null);
   const [loading, setLoading] = useState(true);
   const [reload, setReload] = useState(0);
   const loadKey = `${experiment}-${delay}-${reload}`;
@@ -34,16 +36,28 @@ export function App() {
           if (recording.experiment_id !== id) throw new Error('Recording does not match the selected experiment.');
           return {recording, url: url.href};
         }));
-        if (!controller.signal.aborted) setResult({key: loadKey, items: recordings});
+        const seedResponse = await fetch(new URL('../seed.json', recordings[0].url).href, {signal: controller.signal});
+        if (!seedResponse.ok) throw new Error('Seeded data could not be loaded.');
+        const seed = parseSeed(await seedResponse.json());
+        if (!controller.signal.aborted) {setSeed(seed); setResult({key: loadKey, items: recordings});}
       } catch (cause) { if (!controller.signal.aborted) setError(cause instanceof Error ? cause.message : 'Recording could not be loaded.'); }
       finally { if (!controller.signal.aborted) setLoading(false); }
     }
     void load();
     return () => controller.abort();
   }, [experiment, delay, reload, loadKey]);
-  return <><div className="load-toolbar"><label>Experiment <select aria-label="Experiment" value={experiment} onChange={event => setExperiment(event.target.value)}>{choices.map(choice => <option key={choice.id} value={choice.id}>{choice.label}</option>)}</select></label>{experiment === 'slow-branch' && <label>Recorded network delay <select aria-label="Recorded network delay" value={delay} onChange={event => setDelay(event.target.value)}><option value="0">None · baseline capture</option><option value="500">500 ms · shard 80-</option></select></label>}<button disabled={loading} onClick={() => setReload(value => value + 1)}>{loading ? 'Loading…' : 'Load recording'}</button></div>
-    {experiment === 'slow-branch' && <p className="static-note">The delay selector loads recorded captures. It sends no fault commands.</p>}
-    <section className="query-comparison" aria-label="Compare query routing"><span className="section-label">CHANGE THE QUERY, CHANGE THE ROUTE</span><div><p><strong>One shard</strong><code>SELECT COUNT(*) FROM events WHERE user_id = 42</code><span>Captured EqualUnique route · one shard</span></p><p><strong>Fan-out</strong><code>SELECT COUNT(*) FROM events</code><span>Captured Scatter route + scalar aggregate · both shards</span></p></div></section>
-    {loaded.length ? experiment === 'slow-branch' ? <Comparison key={`${experiment}-${delay}-${reload}`} baseline={loaded[0]} selected={loaded[1]} /> : <Replay key={`${loaded[0].recording.run_id}-${reload}`} recording={loaded[0].recording} recordingURL={loaded[0].url} /> : <main className="load-state"><h1>shardyssey</h1><p role={error ? 'alert' : 'status'}>{error || 'Loading the recorded query…'}</p></main>}
-  </>;
+  const nextChoice = choices[choices.findIndex(choice => choice.id === experiment) + 1];
+  return <div className="app-shell">
+    <header className="app-header"><a className="wordmark" href={import.meta.env.BASE_URL}><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M4 14h8m0 0V5h10m-10 9v9h10" /><circle cx="4" cy="14" r="2" /><circle cx="22" cy="5" r="2" /><circle cx="22" cy="23" r="2" /></svg>shardyssey<span>.</span></a><span className="header-caption">A query, taken apart</span><span className="header-link"><i />Vitess · recorded execution</span></header>
+    <main className="lab-main">
+      <div className="article-intro"><div><p className="eyebrow">INSIDE A DISTRIBUTED DATABASE</p><h1>One query. Multiple machines.</h1></div><div className="intro-detail"><p className="intro-copy">Follow a query through Vitess. Change what it asks, watch where the work goes, and see what holds up the answer.</p><div className="intro-meta"><span>2 shards</span><span>20 events</span><span>3 experiments</span></div></div></div>
+      <section id="experiment" aria-label="Interactive query explanation">
+        <nav className="lesson-nav" aria-label="Query lessons">{choices.map((choice, index) => <button key={choice.id} aria-current={experiment === choice.id ? 'step' : undefined} className={experiment === choice.id ? 'current' : ''} onClick={() => setExperiment(choice.id)}><span className="nav-number">0{index + 1}</span>{choice.label}</button>)}</nav>
+        <div className="lesson-heading"><div><h2>{experiment === 'one-shard' ? "Find one user’s events." : experiment === 'fan-out' ? "Count everyone’s events." : 'Wait for one shard.'}</h2><p>{experiment === 'one-shard' ? 'User 42 lives on one shard. Does the other shard need to do anything?' : experiment === 'fan-out' ? 'Remove the user filter. Now where does the query need to go?' : 'Same query, same data. What happens when one reply arrives late?'}</p></div><label className="mobile-lesson-select"><span className="sr-only">Experiment</span><select aria-label="Experiment" value={experiment} onChange={event => setExperiment(event.target.value)}>{choices.map(choice => <option key={choice.id} value={choice.id}>{choice.label}</option>)}</select></label>{experiment === 'slow-branch' && <label className="delay-select">Network delay<select aria-label="Recorded network delay" value={delay} onChange={event => setDelay(event.target.value)}><option value="0">None · baseline</option><option value="500">500 ms · shard 80-</option></select></label>}</div>
+        {loaded.length && seed ? <Experience key={loadKey} loaded={loaded.at(-1)!} baseline={experiment === 'slow-branch' ? loaded[0] : undefined} seed={seed} nextExperimentLabel={nextChoice?.label} onNextExperiment={nextChoice ? () => setExperiment(nextChoice.id) : undefined} /> : <div className={`loading-stage ${error ? 'load-error' : ''}`}><div className="loading-diagram" aria-hidden="true"><i /><span /><i /><span /><i /></div><p role={error ? 'alert' : 'status'}>{error || 'Loading the recording…'}</p><button disabled={loading} onClick={() => setReload(value => value + 1)}>{loading ? 'Loading…' : 'Try again'}</button></div>}
+      </section>
+      <section className="article-note" aria-label="Continue exploring"><div><span className="eyebrow">KEEP EXPLORING</span><h2>Change the question.<br />Watch the work change.</h2></div><div className="continuation-links">{choices.map((choice, index) => <button key={choice.id} className={experiment === choice.id ? 'active' : ''} onClick={() => {setExperiment(choice.id); document.getElementById('experiment')?.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start'});}}><span>0{index + 1}</span><div><strong>{choice.label}</strong><small>{choice.subtitle}</small></div><span aria-hidden="true">↗</span></button>)}</div></section>
+      <footer className="lab-footer"><span>shardyssey / a query, taken apart</span><span>Recorded timings. Illustrative data movement.</span></footer>
+    </main>
+  </div>;
 }

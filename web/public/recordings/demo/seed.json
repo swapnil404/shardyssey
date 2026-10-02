@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "shards": {
+    "-80": [
+      {
+        "user_id": 1,
+        "event_id": 1,
+        "category": "view"
+      },
+      {
+        "user_id": 1,
+        "event_id": 2,
+        "category": "click"
+      },
+      {
+        "user_id": 2,
+        "event_id": 1,
+        "category": "view"
+      },
+      {
+        "user_id": 2,
+        "event_id": 2,
+        "category": "click"
+      },
+      {
+        "user_id": 3,
+        "event_id": 1,
+        "category": "view"
+      },
+      {
+        "user_id": 3,
+        "event_id": 2,
+        "category": "click"
+      },
+      {
+        "user_id": 5,
+        "event_id": 1,
+        "category": "view"
+      },
+      {
+        "user_id": 5,
+        "event_id": 2,
+        "category": "click"
+      },
+      {
+        "user_id": 42,
+        "event_id": 1,
+        "category": "view"
+      },
+      {
+        "user_id": 42,
+        "event_id": 2,
+        "category": "click"
+      }
+    ],
+    "80-": [
+      {
+        "user_id": 4,
+        "event_id": 1,
+        "category": "view"
+      },
+      {
+        "user_id": 4,
+        "event_id": 2,
+        "category": "click"
+      },
+      {
+        "user_id": 6,
+        "event_id": 1,
+        "category": "view"
+      },
+      {
+        "user_id": 6,
+        "event_id": 2,
+        "category": "click"
+      },
+      {
+        "user_id": 7,
+        "event_id": 1,
+        "category": "view"
+      },
+      {
+        "user_id": 7,
+        "event_id": 2,
+        "category": "click"
+      },
+      {
+        "user_id": 8,
+        "event_id": 1,
+        "category": "view"
+      },
+      {
+        "user_id": 8,
+        "event_id": 2,
+        "category": "click"
+      },
+      {
+        "user_id": 100,
+        "event_id": 1,
+        "category": "view"
+      },
+      {
+        "user_id": 100,
+        "event_id": 2,
+        "category": "click"
+      }
+    ]
+  }
+}
