@@ -1,0 +1,19 @@
+Trace
+{
+	"OperatorType": "Route",
+	"Variant": "EqualUnique",
+	"Keyspace": {
+		"Name": "demo",
+		"Sharded": true
+	},
+	"NoOfCalls": 1,
+	"AvgNumberOfRows": 1,
+	"MedianNumberOfRows": 1,
+	"ShardsQueried": 1,
+	"FieldQuery": "select count(*) from `events` where 1 != 1",
+	"Query": "select count(*) from `events` where user_id = :user_id /* INT64 */",
+	"Values": [
+		":user_id"
+	],
+	"Vindex": "user_hash"
+}

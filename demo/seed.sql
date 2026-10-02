@@ -1,0 +1,22 @@
+INSERT INTO events (user_id, event_id, category) VALUES
+(1, 1, 'view'),
+(1, 2, 'click'),
+(2, 1, 'view'),
+(2, 2, 'click'),
+(3, 1, 'view'),
+(3, 2, 'click'),
+(4, 1, 'view'),
+(4, 2, 'click'),
+(5, 1, 'view'),
+(5, 2, 'click'),
+(6, 1, 'view'),
+(6, 2, 'click'),
+(7, 1, 'view'),
+(7, 2, 'click'),
+(8, 1, 'view'),
+(8, 2, 'click'),
+(42, 1, 'view'),
+(42, 2, 'click'),
+(100, 1, 'view'),
+(100, 2, 'click')
+ON DUPLICATE KEY UPDATE category=VALUES(category);

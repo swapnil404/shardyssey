@@ -1,0 +1,11 @@
+{
+  "run_id": "c7b1f91e-72db-486d-a9ac-c882107a695b",
+  "experiment_id": "one-shard",
+  "sql": "SELECT COUNT(*) FROM events WHERE user_id = 42",
+  "start_unix_us": 1790952580292637,
+  "end_unix_us": 1790952580293732,
+  "client_elapsed_ms": 1.091378,
+  "elapsed_scope": "execute + fetchall on an established MySQL connection",
+  "fault_configuration": null,
+  "correlation": "single executor trace in isolated query interval"
+}

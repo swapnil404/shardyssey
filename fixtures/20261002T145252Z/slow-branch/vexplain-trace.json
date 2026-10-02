@@ -1,0 +1,7 @@
+{
+  "run_id": "041dbae8-987e-41ef-9194-a8a77e8e2e54",
+  "ordinary_run_id": "8f40a322-d4a7-43b5-aeb1-ff906a09079c",
+  "format": "TRACE",
+  "sql": "SELECT COUNT(*) FROM events",
+  "separate_execution": true
+}

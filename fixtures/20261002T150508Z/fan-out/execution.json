@@ -1,0 +1,11 @@
+{
+  "run_id": "3724b816-0707-4373-b9ff-8e1bea5c59c5",
+  "experiment_id": "fan-out",
+  "sql": "SELECT COUNT(*) FROM events",
+  "start_unix_us": 1790953512341548,
+  "end_unix_us": 1790953512342781,
+  "client_elapsed_ms": 1.232975,
+  "elapsed_scope": "query and row retrieval on an established MySQL connection",
+  "fault_configuration": null,
+  "correlation": "single executor trace in isolated query interval"
+}

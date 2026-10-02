@@ -1,0 +1,32 @@
+{
+  "alias": {
+    "cell": "local",
+    "uid": 200
+  },
+  "hostname": "tablet-right",
+  "port_map": {
+    "grpc": 15991,
+    "vt": 15002
+  },
+  "keyspace": "demo",
+  "shard": "80-",
+  "key_range": {
+    "start": "gA==",
+    "end": ""
+  },
+  "type": "PRIMARY",
+  "db_name_override": "",
+  "tags": {},
+  "mysql_hostname": "tablet-right",
+  "mysql_port": 3306,
+  "primary_term_start_time": {
+    "seconds": "1790952165",
+    "nanoseconds": 644165852
+  },
+  "default_conn_collation": 255,
+  "tablet_start_time": {
+    "seconds": "1790952164",
+    "nanoseconds": 449498770
+  },
+  "tablet_shutdown_time": null
+}

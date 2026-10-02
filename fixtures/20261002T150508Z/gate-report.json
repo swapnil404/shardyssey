@@ -1,0 +1,89 @@
+{
+  "gate": "passed",
+  "layout": "separate containers on one host",
+  "clock": "shared host kernel clock; original Jaeger microsecond timestamps preserved",
+  "experiments": {
+    "fan-out": {
+      "run_id": "3724b816-0707-4373-b9ff-8e1bea5c59c5",
+      "trace_id": "ba9cee8b1ccbbffb03d02dbebcb5ea26",
+      "root_span_id": "563568554cab6378",
+      "root_duration_ms": 1.075,
+      "client_elapsed_ms": 1.232975,
+      "branches": [
+        {
+          "shard": "-80",
+          "tablet": "local-0000000100",
+          "tablet_span_id": "b24dcc75d97a793c",
+          "rpc_span_id": "1c99c56e1c97326d",
+          "rpc_start_unix_us": 1790953512341740,
+          "rpc_duration_ms": 0.876,
+          "tablet_duration_ms": 0.587,
+          "identity_source": "service.instance.id + tablet shard attribute + captured topology"
+        },
+        {
+          "shard": "80-",
+          "tablet": "local-0000000200",
+          "tablet_span_id": "0a3c00272134d101",
+          "rpc_span_id": "3af01cff690c36a4",
+          "rpc_start_unix_us": 1790953512341740,
+          "rpc_duration_ms": 0.902,
+          "tablet_duration_ms": 0.621,
+          "identity_source": "service.instance.id + tablet shard attribute + captured topology"
+        }
+      ]
+    },
+    "one-shard": {
+      "run_id": "77aea4f6-8e6e-4476-b63c-c8c9704fe8d3",
+      "trace_id": "705394d34860ae50f17924c4dcaed77e",
+      "root_span_id": "e5b573022e4cd7d8",
+      "root_duration_ms": 1.048,
+      "client_elapsed_ms": 1.172073,
+      "branches": [
+        {
+          "shard": "-80",
+          "tablet": "local-0000000100",
+          "tablet_span_id": "63af5a689fb2a887",
+          "rpc_span_id": "756633420ed5428f",
+          "rpc_start_unix_us": 1790953509453777,
+          "rpc_duration_ms": 0.761,
+          "tablet_duration_ms": 0.409,
+          "identity_source": "service.instance.id + tablet shard attribute + captured topology"
+        }
+      ]
+    },
+    "slow-branch": {
+      "run_id": "6c3ca995-1360-4f77-9c42-8158eb90c956",
+      "trace_id": "bcfe6a91fe071e15cb9b4f9d0c61f1ad",
+      "root_span_id": "56af816967ec7a16",
+      "root_duration_ms": 525.483,
+      "client_elapsed_ms": 525.623972,
+      "branches": [
+        {
+          "shard": "-80",
+          "tablet": "local-0000000100",
+          "tablet_span_id": "e291c582997e988c",
+          "rpc_span_id": "457c24fa7dd600c4",
+          "rpc_start_unix_us": 1790953515671445,
+          "rpc_duration_ms": 0.763,
+          "tablet_duration_ms": 0.474,
+          "identity_source": "service.instance.id + tablet shard attribute + captured topology"
+        },
+        {
+          "shard": "80-",
+          "tablet": "local-0000000200",
+          "tablet_span_id": "fe8f164ea16428be",
+          "rpc_span_id": "03690515fa6a5677",
+          "rpc_start_unix_us": 1790953515671425,
+          "rpc_duration_ms": 525.331,
+          "tablet_duration_ms": 0.465,
+          "identity_source": "service.instance.id + tablet shard attribute + captured topology"
+        }
+      ]
+    }
+  },
+  "delay_effect_ms": {
+    "-80": -0.11299999999999999,
+    "80-": 524.429,
+    "root": 524.4079999999999
+  }
+}

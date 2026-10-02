@@ -1,0 +1,18 @@
+JSON
+{
+	"OperatorType": "Aggregate",
+	"Variant": "Scalar",
+	"Aggregates": "sum_count_star(0) AS count(*)",
+	"Inputs": [
+		{
+			"OperatorType": "Route",
+			"Variant": "Scatter",
+			"Keyspace": {
+				"Name": "demo",
+				"Sharded": true
+			},
+			"FieldQuery": "select count(*) from `events` where 1 != 1",
+			"Query": "select count(*) from `events`"
+		}
+	]
+}

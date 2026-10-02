@@ -1,0 +1,30 @@
+{
+  "sharded": true,
+  "vindexes": {
+    "user_hash": {
+      "type": "hash",
+      "params": {},
+      "owner": ""
+    }
+  },
+  "tables": {
+    "events": {
+      "type": "",
+      "column_vindexes": [
+        {
+          "column": "user_id",
+          "name": "user_hash",
+          "columns": []
+        }
+      ],
+      "auto_increment": null,
+      "columns": [],
+      "pinned": "",
+      "column_list_authoritative": false,
+      "source": ""
+    }
+  },
+  "require_explicit_routing": false,
+  "foreign_key_mode": "unspecified",
+  "multi_tenant_spec": null
+}

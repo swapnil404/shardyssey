@@ -1,0 +1,1 @@
+{"sharded":true,"vindexes":{"user_hash":{"type":"hash"}},"tables":{"events":{"column_vindexes":[{"column":"user_id","name":"user_hash"}]}}}

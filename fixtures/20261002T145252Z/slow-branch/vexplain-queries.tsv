@@ -1,0 +1,3 @@
+#	keyspace	shard	query
+0	demo	-80	select count(*) from `events`
+1	demo	80-	select count(*) from `events`

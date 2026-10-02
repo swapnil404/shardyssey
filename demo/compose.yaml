@@ -1,0 +1,59 @@
+name: shardyssey
+x-vitess: &vitess
+  image: ${VITESS_IMAGE:?Run demo/pin-images.sh first}
+  entrypoint: [bash, /demo/service.sh]
+  volumes: [./:/demo:ro]
+  environment: &environment
+    VTDATAROOT: /vt/vtdataroot
+    OTEL_BSP_SCHEDULE_DELAY: '200'
+services:
+  etcd:
+    image: ${ETCD_IMAGE:?Run demo/pin-images.sh first}
+    command: [etcd, --advertise-client-urls=http://etcd:2379, --listen-client-urls=http://0.0.0.0:2379, --data-dir=/etcd-data]
+    volumes: [etcd:/etcd-data]
+  jaeger:
+    image: ${JAEGER_IMAGE:?Run demo/pin-images.sh first}
+    environment:
+      COLLECTOR_OTLP_ENABLED: 'true'
+    ports: ['127.0.0.1:16686:16686']
+  vtctld:
+    <<: *vitess
+    command: [vtctld]
+    depends_on: [etcd]
+  tablet-left:
+    <<: *vitess
+    command: [tablet]
+    environment:
+      <<: *environment
+      TABLET_UID: '100'
+      TABLET_HOST: tablet-left
+      SHARD: '-80'
+      OTEL_RESOURCE_ATTRIBUTES: service.instance.id=local-0000000100
+    volumes: [./:/demo:ro, left:/vt/vtdataroot]
+    depends_on: [etcd, jaeger]
+  tablet-right:
+    <<: *vitess
+    command: [tablet]
+    environment:
+      <<: *environment
+      TABLET_UID: '200'
+      TABLET_HOST: tablet-right
+      SHARD: '80-'
+      OTEL_RESOURCE_ATTRIBUTES: service.instance.id=local-0000000200
+    volumes: [./:/demo:ro, right:/vt/vtdataroot]
+    depends_on: [etcd, jaeger]
+  vtgate:
+    <<: *vitess
+    command: [vtgate]
+    depends_on: [etcd, jaeger]
+    ports: ['127.0.0.1:15306:15306']
+  fault:
+    image: ${FAULT_IMAGE:?Run demo/pin-images.sh first}
+    network_mode: service:vtgate
+    cap_add: [NET_ADMIN]
+    command: [sleep, infinity]
+    depends_on: [vtgate]
+volumes:
+  etcd:
+  left:
+  right:

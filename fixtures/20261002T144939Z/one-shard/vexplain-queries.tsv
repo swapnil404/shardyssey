@@ -1,0 +1,2 @@
+#	keyspace	shard	query
+0	demo	-80	select count(*) from `events` where user_id = 42

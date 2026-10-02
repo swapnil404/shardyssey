@@ -1,0 +1,7 @@
+{
+  "format": "PLAN",
+  "ordinary_run_id": "3724b816-0707-4373-b9ff-8e1bea5c59c5",
+  "run_id": "9334f283-bd20-4912-aca3-1ec9a30f18a6",
+  "separate_execution": true,
+  "sql": "SELECT COUNT(*) FROM events"
+}
